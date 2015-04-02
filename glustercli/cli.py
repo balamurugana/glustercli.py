@@ -16,8 +16,11 @@
 import xml.etree.cElementTree as etree
 import ethtool
 import socket
+import logging
 
 import utils
+
+logger = logging.getLogger('glustercli')
 
 if hasattr(etree, 'ParseError'):
     _etreeExceptions = (etree.ParseError, AttributeError, ValueError)
@@ -50,9 +53,8 @@ def _getLocalPeer():
             if not ip.startswith('127.'):
                 _peer = ip
                 return ip
-        except IOError:
-            # TODO: log it
-            pass
+        except IOError as e:
+            logger.warn('failed to get ipaddr for device %s: %s' % (dev, e))
 
     return fqdn
 
@@ -505,7 +507,7 @@ def volumeReset(volumeName, option='', force=False):
     return True
 
 
-def volumeAddBrick(volumeName, brickList,
+def volumeBrickAdd(volumeName, brickList,
                    replicaCount=0, stripeCount=0, force=False):
     command = _getGlusterVolCmd() + ["add-brick", volumeName]
     if stripeCount:
@@ -656,7 +658,7 @@ def volumeReplaceBrickCommit(volumeName, existingBrick, newBrick,
     return True
 
 
-def volumeRemoveBrickStart(volumeName, brickList, replicaCount=0):
+def volumeBrickRemoveStart(volumeName, brickList, replicaCount=0):
     command = _getGlusterVolCmd() + ["remove-brick", volumeName]
     if replicaCount:
         command += ["replica", "%s" % replicaCount]
@@ -670,7 +672,7 @@ def volumeRemoveBrickStart(volumeName, brickList, replicaCount=0):
         raise GlusterXMLError(command, etree.tostring(xmltree))
 
 
-def volumeRemoveBrickStop(volumeName, brickList, replicaCount=0):
+def volumeBrickRemoveStop(volumeName, brickList, replicaCount=0):
     command = _getGlusterVolCmd() + ["remove-brick", volumeName]
     if replicaCount:
         command += ["replica", "%s" % replicaCount]
@@ -684,7 +686,7 @@ def volumeRemoveBrickStop(volumeName, brickList, replicaCount=0):
         raise GlusterXMLError(command, etree.tostring(xmltree))
 
 
-def volumeRemoveBrickStatus(volumeName, brickList, replicaCount=0):
+def volumeBrickRemoveStatus(volumeName, brickList, replicaCount=0):
     command = _getGlusterVolCmd() + ["remove-brick", volumeName]
     if replicaCount:
         command += ["replica", "%s" % replicaCount]
@@ -698,7 +700,7 @@ def volumeRemoveBrickStatus(volumeName, brickList, replicaCount=0):
         raise GlusterXMLError(command, etree.tostring(xmltree))
 
 
-def volumeRemoveBrickCommit(volumeName, brickList, replicaCount=0):
+def volumeBrickRemoveCommit(volumeName, brickList, replicaCount=0):
     command = _getGlusterVolCmd() + ["remove-brick", volumeName]
     if replicaCount:
         command += ["replica", "%s" % replicaCount]
@@ -708,7 +710,7 @@ def volumeRemoveBrickCommit(volumeName, brickList, replicaCount=0):
     return True
 
 
-def volumeRemoveBrickForce(volumeName, brickList, replicaCount=0):
+def volumeBrickRemoveForce(volumeName, brickList, replicaCount=0):
     command = _getGlusterVolCmd() + ["remove-brick", volumeName]
     if replicaCount:
         command += ["replica", "%s" % replicaCount]

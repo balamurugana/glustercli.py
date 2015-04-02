@@ -339,7 +339,7 @@ class CmdExecFailed(Exception):
 
     def __str__(self):
         s = "%s\ncommand: %s\nexit code: %s\nstderr: %s\nstdout: %s\n"
-        return s % (self.message, self.cmd, self.rc, self.stderr, self.stdout)
+        return s % (self.message, self.cmd, self.rc, self.err, self.out)
 
 
 def _execCmd(command, sudo=False, cwd=None, data=None, raw=True, logErr=True,
